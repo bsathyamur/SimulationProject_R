@@ -1,0 +1,992 @@
+---
+title: "STAT 420 SIMULATION STUDY"
+author: "STAT 420, Summer 2019, BALAJI SATHYAMURTHY (BALAJIS2)"
+date: ''
+output:
+  html_document: 
+    toc: yes
+  pdf_document: default
+urlcolor: cyan
+---
+
+## Simulation Study 1, Significance of Regression
+
+**Introduction**
+
+In this simulation study we will investigate the significance of regression test. We will simulate from two different models using the data found in study_1.csv file:
+
+The “significant” model
+\[
+    Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} + \epsilon_i
+\]
+where 
+      $\epsilon_i$ ~ N(0,$\sigma^2$) and
+      $\beta_0$ =3,
+      $\beta_1$ =1,
+      $\beta_2$ =1,
+      $\beta_3$ =1.
+
+The “non-significant” model
+\[
+    Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} + \epsilon_i
+\]
+where 
+      $\epsilon_i$ ~ N(0,$\sigma^2$) and
+      $\beta_0$ =3,
+      $\beta_1$ =0,
+      $\beta_2$ =0,
+      $\beta_3$ =0.
+
+For both, we will consider a sample size of 25 (n = 25) and three possible levels of noise. That is, three values of $\sigma$ i.e., $\sigma$ ∈ (1,5,10)
+ 
+Then for each of the three values of σ, for calculate the following for both models.
+
+  1. The Fstatistic for the significance of regression test
+  
+  2. The p-value for the significance of regression test
+  
+  3. R2
+
+For each model-σ combination we will use 2500 simulations. Then for each simulation, we will fit a regression model.
+
+**Methods**
+
+```{r include=FALSE}
+#Import all the required library and load the data from the CSV file for simulation
+library(broom)
+library(readr)
+library(flextable)
+library(magrittr)
+library(rgl)
+
+#Set the seed to birthday
+birthday = 19830502
+set.seed(birthday)
+
+#Import the data from the study_1.csv
+study1_data = read_csv("study_1.csv")
+```
+
+```{r}
+#Assign the variables to be used for simulation
+sample_size = 25
+sigma_1  = 1
+sigma_5  = 5
+sigma_10 = 10
+beta0_s = 3
+beta1_s = 1
+beta2_s = 1
+beta3_s = 1
+beta0_ns = 3
+beta1_ns = 0
+beta2_ns = 0
+beta3_ns = 0
+num_sims = 2500   #sims = 2500
+num_models = 6
+x1 = study1_data$x1
+x2 = study1_data$x2
+x3 = study1_data$x3
+
+# Vectors to store fstat, pval and R2 for significant model for sigma = 1
+fstat_s_sig1 = rep(0, num_sims)
+pval_s_sig1 = rep(0, num_sims)
+r2_s_sig1 = rep(0, num_sims)
+
+# Vectors to store fstat, pval and R2 for significant model for sigma = 5
+fstat_s_sig5 = rep(0, num_sims)
+pval_s_sig5 = rep(0, num_sims)
+r2_s_sig5 = rep(0, num_sims)
+
+# Vectors to store fstat, pval and R2 for significant model for sigma = 10
+fstat_s_sig10 = rep(0, num_sims)
+pval_s_sig10 = rep(0, num_sims)
+r2_s_sig10 = rep(0, num_sims)
+
+# Vectors to store fstat, pval and R2 for non-significant model for sigma = 1
+fstat_ns_sig1 = rep(0, num_sims)
+pval_ns_sig1 = rep(0, num_sims)
+r2_ns_sig1 = rep(0, num_sims)
+
+# Vectors to store fstat, pval and R2 for non-significant model for sigma = 5
+fstat_ns_sig5 = rep(0, num_sims)
+pval_ns_sig5 = rep(0, num_sims)
+r2_ns_sig5 = rep(0, num_sims)
+
+# Vectors to store fstat, pval and R2 for non-significant model for sigma = 10
+fstat_ns_sig10 = rep(0, num_sims)
+pval_ns_sig10 = rep(0, num_sims)
+r2_ns_sig10 = rep(0, num_sims)
+
+#Iterating the for loop for the below 6 models
+# Significant for sigma = 1
+# Significant for sigma = 5
+# Significant for sigma = 10
+# Non-Significant for sigma = 1
+# Non-Significant for sigma = 5
+# Non-Significant for sigma = 10
+
+for (mod_cnt in 1:num_models) {
+  #Assigning the sigma according to the model selected in the for loop
+  if (mod_cnt == 1 || mod_cnt == 4) {
+    sigma = sigma_1
+  }
+  if (mod_cnt == 2 || mod_cnt == 5) {
+    sigma = sigma_5
+  }
+  if (mod_cnt == 3 || mod_cnt == 6) {
+    sigma = sigma_10
+  }
+  
+  for (sim_cnt in 1:num_sims) {
+    # Calculating the epsilon for each simulation
+    epsilon = rnorm(n = sample_size, mean = 0, sd = sigma)
+    
+    #simulate fitted regression for significant model sigma = 1
+    if (mod_cnt == 1) {
+      y = beta0_s + beta1_s * x1 + beta2_s * x2 + beta3_s * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_s_sig1[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_s_sig1[sim_cnt] = glance(fit)$p.value
+      r2_s_sig1[sim_cnt] = summary(fit)$r.squared
+    }
+    
+    #simulate fitted regression for significant model sigma = 5
+    if (mod_cnt == 2) {
+      y = beta0_s + beta1_s * x1 + beta2_s * x2 + beta3_s * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_s_sig5[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_s_sig5[sim_cnt] = glance(fit)$p.value
+      r2_s_sig5[sim_cnt] = summary(fit)$r.squared
+    }
+    
+    #simulate fitted regression for significant model sigma = 10
+    if (mod_cnt == 3) {
+      y = beta0_s + beta1_s * x1 + beta2_s * x2 + beta3_s * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_s_sig10[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_s_sig10[sim_cnt] = glance(fit)$p.value
+      r2_s_sig10[sim_cnt] = summary(fit)$r.squared
+    }
+    
+    #simulate fitted regression for non-significant model sigma = 1
+    if (mod_cnt == 4) {
+      y = beta0_ns + beta1_ns * x1 + beta2_ns * x2 + beta3_ns * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_ns_sig1[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_ns_sig1[sim_cnt] = glance(fit)$p.value
+      r2_ns_sig1[sim_cnt] = summary(fit)$r.squared
+    }
+    
+    #simulate fitted regression for non-significant model sigma = 5
+    if (mod_cnt == 5) {
+      y = beta0_ns + beta1_ns * x1 + beta2_ns * x2 + beta3_ns * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_ns_sig5[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_ns_sig5[sim_cnt] = glance(fit)$p.value
+      r2_ns_sig5[sim_cnt] = summary(fit)$r.squared
+    }
+    
+    #simulate fitted regression for non-significant model sigma = 10
+    if (mod_cnt == 6) {
+      y = beta0_ns + beta1_ns * x1 + beta2_ns * x2 + beta3_ns * x3 + epsilon
+      fit = lm(y ~ x1 + x2 + x3)
+      fstat_ns_sig10[sim_cnt] = summary(fit)$fstatistic[1]
+      pval_ns_sig10[sim_cnt] = glance(fit)$p.value
+      r2_ns_sig10[sim_cnt] = summary(fit)$r.squared
+    }
+    
+  }
+}
+```
+
+**Results**
+
+*Tabular representation of the empirical distribution of the simulated values for comparison*
+
+```{r}
+
+Model_No =c("S - sigma = 1","S - sigma = 5","S - sigma = 10","NS - sigma = 1","NS - sigma = 5","NS - sigma = 10")
+fstat_mean =c(mean(fstat_s_sig1),mean(fstat_s_sig5),mean(fstat_s_sig10),mean(fstat_ns_sig1),mean(fstat_ns_sig5),mean(fstat_ns_sig10))
+fstat_var =c(var(fstat_s_sig1),var(fstat_s_sig5),var(fstat_s_sig10),var(fstat_ns_sig1),var(fstat_ns_sig5),var(fstat_ns_sig10))
+pval_mean =c(mean(pval_s_sig1),mean(pval_s_sig5),mean(pval_s_sig10),mean(pval_ns_sig1),mean(pval_ns_sig5),mean(pval_ns_sig10))
+pval_var =c(var(pval_s_sig1),var(pval_s_sig5),var(pval_s_sig10),var(pval_ns_sig1),var(pval_ns_sig5),var(pval_ns_sig10))
+rsquare_mean =c(mean(r2_s_sig1),mean(r2_s_sig5),mean(r2_s_sig10),mean(r2_ns_sig1),mean(r2_ns_sig5),mean(r2_ns_sig10))
+rsquare_var =c(var(r2_s_sig1),var(r2_s_sig5),var(r2_s_sig10),var(r2_ns_sig1),var(r2_ns_sig5),var(r2_ns_sig10))
+
+results = data.frame(Model_No,fstat_mean,fstat_var,pval_mean,pval_var,rsquare_mean,rsquare_var)  
+colnames(results) = c("Model","Fstat-Mean","Fstat-Variance","pval-Mean","pval-Variance","Rsquared-Mean","Rsquared-Variance")
+flextable(results)
+```
+
+
+*Graphical representation of the distribution of the simulated values for parameters - Fstatistic, p-Value and RSquared*
+
+```{r}
+
+n = 2500
+p = 3
+
+# F statistic sigma = 1
+par(mfrow = c(1, 2))
+
+hist(
+  fstat_s_sig1,
+  main = "F Statistic - S (sigma = 1)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+hist(
+  fstat_ns_sig1,
+  main = "F Statistic - NS (sigma = 1)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+x = fstat_ns_sig1
+
+curve(df(x, df1 = p, df2 = n-p),
+      col = "orange",
+      add = TRUE,
+      lwd = 3)
+
+
+# F statistic sigma = 5
+par(mfrow = c(1, 2))
+
+hist(
+  fstat_s_sig5,
+  main = "F Statistic - S (sigma = 5)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+hist(
+  fstat_ns_sig5,
+  main = "F Statistic - NS (sigma = 5)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+x = fstat_ns_sig5
+
+curve(df(x, df1 = p, df2 = n-p),
+      col = "orange",
+      add = TRUE,
+      lwd = 3)
+
+
+# F statistic sigma = 10
+par(mfrow = c(1, 2))
+
+hist(
+  fstat_s_sig10,
+  main = "F Statistic - S (sigma = 10)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+
+hist(
+  fstat_ns_sig10,
+  main = "F Statistic - NS (sigma = 10)",
+  border = "blue",
+  xlab = "F Statistic",
+  prob = TRUE
+)
+
+x = fstat_ns_sig10
+
+curve(df(x, df1 = p, df2 = n-p),
+      col = "orange",
+      add = TRUE,
+      lwd = 3)
+
+
+# p-Value sigma = 1
+par(mfrow = c(1, 2))
+
+hist(
+  pval_s_sig1,
+  main = "p-Value - S (sigma = 1)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+hist(
+  pval_ns_sig1,
+  main = "p-Value - NS (sigma = 1)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+
+# p-Value sigma = 5
+par(mfrow = c(1, 2))
+
+hist(
+  pval_s_sig5,
+  main = "p-Value - S (sigma = 5)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+hist(
+  pval_ns_sig5,
+  main = "p-Value - NS (sigma = 5)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+
+# p-Value sigma = 10
+par(mfrow = c(1, 2))
+
+hist(
+  pval_s_sig10,
+  main = "p-Value - S (sigma = 10)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+hist(
+  pval_ns_sig10,
+  main = "p-Value - NS (sigma = 10)",
+  border = "blue",
+  xlab = "p-Value",
+  prob = TRUE
+)
+
+
+# R-squared sigma = 1
+par(mfrow = c(1, 2))
+
+hist(
+  r2_s_sig1,
+  main = "R-squared - S (sigma = 1)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+hist(
+  r2_ns_sig1,
+  main = "R-squared- NS (sigma = 1)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+
+# R-squared sigma = 5
+par(mfrow = c(1, 2))
+
+hist(
+  r2_s_sig5,
+  main = "R-squared - S (sigma = 5)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+hist(
+  r2_ns_sig5,
+  main = "R-squared- NS (sigma = 5)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+
+# R-squared sigma = 10
+par(mfrow = c(1, 2))
+
+hist(
+  r2_s_sig10,
+  main = "R-squared - S (sigma = 10)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+hist(
+  r2_ns_sig10,
+  main = "R-squared- NS (sigma = 10)",
+  border = "blue",
+  xlab = "R-squared",
+  prob = TRUE
+)
+
+```
+
+**Discussions**
+
+f-Statistic:
+The f-statistic doesn't seem to align with the true distribution curve. 
+
+p-Value:
+When the null hypothesis, $H_0$, is true, all p-values between 0 and 1 are equally likely. In other words, the p-value has a rectangular distribution between 0 and 1
+
+On the other hand, if $H_1$ is true, then the p-values have a distribution for which p-values near zero are more likely than p-values near 1. The precise distribution under the alternative hypothesis depends on the specific hypotheses being tested and the true value of the parameter, but it always favours values near 0.
+
+R-squared:
+I am not able to understand what type of distribution does the r-squared follows under null and alternate hypthesis
+
+Lower values of sigma seem to have more dense higher values of R-squared for the significant model
+
+In case of the non significant model since its mostly noise, the r-squared doesn't seem to vary much for each sigma.
+
+## Simulation Study 2, Using RMSE for Selection
+
+**Introduction**
+
+Using the data found in study_2.csv, We will simulate from the below model
+
+\[
+    Y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} + \beta_3 x_{i4} + \beta_3 x_{i5} + \beta_3 x_{i6} + \epsilon_i
+\]
+where 
+      $\epsilon_i$ ~ N(0,$\sigma^2$) and
+      $\beta_0$ =0,
+      $\beta_1$ =5,
+      $\beta_2$ =-4,
+      $\beta_3$ =1.6,
+      $\beta_1$ =-1.1,
+      $\beta_2$ =0.7,
+      $\beta_3$ =0.3.
+      
+We will consider a sample size of 500 and three possible levels of noise. That is, three values of $\sigma$ i.e., n=500 and $\sigma$ ∈ (1,2,4). 
+
+We simulate the data by randomly splitting the data into train and test sets of equal sizes (250 observations for training, 250 observations for testing).For each simulation, we fit the nine models, with forms as shown below:
+
+y ~ x1
+
+y ~ x1 + x2
+
+y ~ x1 + x2 + x3
+
+y ~ x1 + x2 + x3 + x4
+
+y ~ x1 + x2 + x3 + x4 + x5
+
+y ~ x1 + x2 + x3 + x4 + x5 + x6
+
+y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7
+
+y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8
+
+y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9
+
+For each model and for each of the level of noise, we simulate 1000 times and calculate the Train and Test RMSE to identify the best model.
+
+**Methods**
+
+```{r include=FALSE}
+birthday = 19810908;
+set.seed(birthday);
+
+#Import the data from the study_2.csv
+study2_data = read_csv("study_2.csv")
+```
+
+
+```{r}
+sigma_1 = 1
+sigma_2 = 2
+sigma_4 = 4
+beta_0 = 0
+beta_1 = 5
+beta_2 = -4
+beta_3 = 1.6
+beta_4 = -1.1
+beta_5 = 0.7
+beta_6 = 0.3
+sample_size = 500
+
+num_sigmas   = 3     #sigmas = 3
+num_mdls     = 9     #models = 9
+num_sims     = 1000    #sims   = 1000
+
+rmse_trn_mdl1_sig1 = rep(0,num_sims)
+rmse_tst_mdl1_sig1 = rep(0,num_sims)
+rmse_trn_mdl1_sig2 = rep(0,num_sims)
+rmse_tst_mdl1_sig2 = rep(0,num_sims)
+rmse_trn_mdl1_sig4 = rep(0,num_sims)
+rmse_tst_mdl1_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl2_sig1 = rep(0,num_sims)
+rmse_tst_mdl2_sig1 = rep(0,num_sims)
+rmse_trn_mdl2_sig2 = rep(0,num_sims)
+rmse_tst_mdl2_sig2 = rep(0,num_sims)
+rmse_trn_mdl2_sig4 = rep(0,num_sims)
+rmse_tst_mdl2_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl3_sig1 = rep(0,num_sims)
+rmse_tst_mdl3_sig1 = rep(0,num_sims)
+rmse_trn_mdl3_sig2 = rep(0,num_sims)
+rmse_tst_mdl3_sig2 = rep(0,num_sims)
+rmse_trn_mdl3_sig4 = rep(0,num_sims)
+rmse_tst_mdl3_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl4_sig1 = rep(0,num_sims)
+rmse_tst_mdl4_sig1 = rep(0,num_sims)
+rmse_trn_mdl4_sig2 = rep(0,num_sims)
+rmse_tst_mdl4_sig2 = rep(0,num_sims)
+rmse_trn_mdl4_sig4 = rep(0,num_sims)
+rmse_tst_mdl4_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl5_sig1 = rep(0,num_sims)
+rmse_tst_mdl5_sig1 = rep(0,num_sims)
+rmse_trn_mdl5_sig2 = rep(0,num_sims)
+rmse_tst_mdl5_sig2 = rep(0,num_sims)
+rmse_trn_mdl5_sig4 = rep(0,num_sims)
+rmse_tst_mdl5_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl6_sig1 = rep(0,num_sims)
+rmse_tst_mdl6_sig1 = rep(0,num_sims)
+rmse_trn_mdl6_sig2 = rep(0,num_sims)
+rmse_tst_mdl6_sig2 = rep(0,num_sims)
+rmse_trn_mdl6_sig4 = rep(0,num_sims)
+rmse_tst_mdl6_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl7_sig1 = rep(0,num_sims)
+rmse_tst_mdl7_sig1 = rep(0,num_sims)
+rmse_trn_mdl7_sig2 = rep(0,num_sims)
+rmse_tst_mdl7_sig2 = rep(0,num_sims)
+rmse_trn_mdl7_sig4 = rep(0,num_sims)
+rmse_tst_mdl7_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl8_sig1 = rep(0,num_sims)
+rmse_tst_mdl8_sig1 = rep(0,num_sims)
+rmse_trn_mdl8_sig2 = rep(0,num_sims)
+rmse_tst_mdl8_sig2 = rep(0,num_sims)
+rmse_trn_mdl8_sig4 = rep(0,num_sims)
+rmse_tst_mdl8_sig4 = rep(0,num_sims)
+
+rmse_trn_mdl9_sig1 = rep(0,num_sims)
+rmse_tst_mdl9_sig1 = rep(0,num_sims)
+rmse_trn_mdl9_sig2 = rep(0,num_sims)
+rmse_tst_mdl9_sig2 = rep(0,num_sims)
+rmse_trn_mdl9_sig4 = rep(0,num_sims)
+rmse_tst_mdl9_sig4 = rep(0,num_sims)
+
+y_cnt = 0
+
+for(sigma_cnt in 1:num_sigmas){
+  
+  if(sigma_cnt == 1){sigma = 1}
+  if(sigma_cnt == 2){sigma = 2} 
+  if(sigma_cnt == 3){sigma = 4}
+  
+  for(mdl_cnt in 1:num_mdls){
+    
+      for(sim_cnt in 1:num_sims){
+        
+         #Calculate epsilon for each simulation
+         epsilon = rnorm(n = sample_size,mean = 0, sd = sigma)
+         
+         #Calculate y vector for each simulation
+         y = beta_0 + beta_1 * study2_data$x1 + beta_2 * study2_data$x2 + beta_3 * study2_data$x3 + beta_4 * study2_data$x4 + beta_5 * study2_data$x5 + beta_6 * study2_data$x6 + epsilon
+         y_cnt = y_cnt + 1
+         
+         study2_data$y = y
+         #Split the data in random for 250 train and test data sets
+         stdy2_trn_idx = sample(1:nrow(study2_data), 250)
+         stdy2_trn = study2_data[stdy2_trn_idx, ]
+         stdy2_tst = study2_data[-stdy2_trn_idx, ]
+         
+         #Generate the fitted model for the train data for model 1
+         if(mdl_cnt == 1){fit = lm(y~x1,data = stdy2_trn)}
+         
+         #Generate the fitted model for the train data for model 2      
+         if(mdl_cnt == 2){fit = lm(y~x1+x2,data = stdy2_trn)}         
+
+         #Generate the fitted model for the train data for model 3      
+         if(mdl_cnt == 3){fit = lm(y~x1+x2+x3,data = stdy2_trn)}   
+
+         #Generate the fitted model for the train data for model 4      
+         if(mdl_cnt == 4){fit = lm(y~x1+x2+x3+x4,data = stdy2_trn)}   
+         
+         #Generate the fitted model for the train data for model 5      
+         if(mdl_cnt == 5){fit = lm(y~x1+x2+x3+x4+x5,data = stdy2_trn)}   
+
+         #Generate the fitted model for the train data for model 6      
+         if(mdl_cnt == 6){fit = lm(y~x1+x2+x3+x4+x5+x6,data = stdy2_trn)} 
+         
+         #Generate the fitted model for the train data for model 7      
+         if(mdl_cnt == 7){fit = lm(y~x1+x2+x3+x4+x5+x6+x7,data = stdy2_trn)} 
+         
+         #Generate the fitted model for the train data for model 8      
+         if(mdl_cnt == 8){fit = lm(y~x1+x2+x3+x4+x5+x6+x7+x8,data = stdy2_trn)} 
+         
+         #Generate the fitted model for the train data for model 9      
+         if(mdl_cnt == 9){fit = lm(y~x1+x2+x3+x4+x5+x6+x7+x8+x9,data = stdy2_trn)} 
+         
+         if(sigma_cnt == 1 && mdl_cnt == 1){
+           rmse_trn_mdl1_sig1[sim_cnt] = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl1_sig1[sim_cnt] = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 1){
+           rmse_trn_mdl1_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl1_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 1){
+           rmse_trn_mdl1_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl1_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}         
+ 
+         if(sigma_cnt == 1 && mdl_cnt == 2){
+           rmse_trn_mdl2_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl2_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 2){
+           rmse_trn_mdl2_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl2_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 2){
+           rmse_trn_mdl2_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl2_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}         
+ 
+         if(sigma_cnt == 1 && mdl_cnt == 3){
+           rmse_trn_mdl3_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl3_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 3){
+           rmse_trn_mdl3_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl3_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 3){
+           rmse_trn_mdl3_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl3_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )} 
+
+         if(sigma_cnt == 1 && mdl_cnt == 4){
+           rmse_trn_mdl4_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl4_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 4){
+           rmse_trn_mdl4_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl4_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 4){
+           rmse_trn_mdl4_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl4_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )} 
+ 
+         if(sigma_cnt == 1 && mdl_cnt == 5){
+           rmse_trn_mdl5_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl5_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 5){
+           rmse_trn_mdl5_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl5_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 5){
+           rmse_trn_mdl5_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl5_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )} 
+         
+          if(sigma_cnt == 1 && mdl_cnt == 6){
+           rmse_trn_mdl6_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl6_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 6){
+           rmse_trn_mdl6_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl6_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 6){
+           rmse_trn_mdl6_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl6_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+           if(sigma_cnt == 1 && mdl_cnt == 7){
+           rmse_trn_mdl7_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl7_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 7){
+           rmse_trn_mdl7_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl7_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 7){
+           rmse_trn_mdl7_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl7_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )} 
+         
+         if(sigma_cnt == 1 && mdl_cnt == 8){
+           rmse_trn_mdl8_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl8_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 8){
+           rmse_trn_mdl8_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl8_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 8){
+           rmse_trn_mdl8_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl8_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )} 
+                 
+         if(sigma_cnt == 1 && mdl_cnt == 9){
+           rmse_trn_mdl9_sig1[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl9_sig1[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+ 
+         if(sigma_cnt == 2 && mdl_cnt == 9){
+           rmse_trn_mdl9_sig2[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl9_sig2[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}
+         
+         if(sigma_cnt == 3 && mdl_cnt == 9){
+           rmse_trn_mdl9_sig4[sim_cnt]  = sqrt(mean( (stdy2_trn$y - predict(fit, stdy2_trn)) ^ 2) )
+           rmse_tst_mdl9_sig4[sim_cnt]  = sqrt(mean( (stdy2_tst$y - predict(fit, stdy2_tst)) ^ 2) )}          
+                         
+      }#end of sim_cnt loop
+    
+  }#end of model_cnt loop
+  
+} #end of sigma_cnt loop
+
+
+# Including the mean test and train results for RMSE for each model size into a data frame
+
+mean_results = data.frame("model_size" = 1,"TRN_RMSE1" = mean(rmse_trn_mdl1_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl1_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl1_sig4),"TST_RMSE1" = mean(rmse_tst_mdl1_sig1),"TST_RMSE2" = mean(rmse_tst_mdl1_sig2),"TST_RMSE4" = mean(rmse_trn_mdl1_sig4))
+newRow = data.frame("model_size" = 2,"TRN_RMSE1" = mean(rmse_trn_mdl2_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl2_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl2_sig4),"TST_RMSE1" = mean(rmse_tst_mdl2_sig1),"TST_RMSE2" = mean(rmse_tst_mdl2_sig2),"TST_RMSE4" = mean(rmse_trn_mdl2_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 3,"TRN_RMSE1" = mean(rmse_trn_mdl3_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl3_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl3_sig4),"TST_RMSE1" = mean(rmse_tst_mdl3_sig1),"TST_RMSE2" = mean(rmse_tst_mdl3_sig2),"TST_RMSE4" = mean(rmse_trn_mdl3_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 4,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 5,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 6,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 7,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 8,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+newRow = data.frame("model_size" = 9,"TRN_RMSE1" = mean(rmse_trn_mdl4_sig1),"TRN_RMSE2" = mean(rmse_trn_mdl4_sig2),"TRN_RMSE4" = mean(rmse_trn_mdl4_sig4),"TST_RMSE1" = mean(rmse_tst_mdl4_sig1),"TST_RMSE2" = mean(rmse_tst_mdl4_sig2),"TST_RMSE4" = mean(rmse_trn_mdl4_sig4))
+mean_results <- rbind(mean_results,newRow)
+
+# Combine the vectors for sigma 1,2, and 4 for test results into a data frame for plotting
+tst_results_1 = data.frame("model1" = rmse_tst_mdl1_sig1,"model2" = rmse_tst_mdl2_sig1,"model3" = rmse_tst_mdl3_sig1,"model4" = rmse_tst_mdl4_sig1,"model5" = rmse_tst_mdl5_sig1,"model6" = rmse_tst_mdl7_sig1,"model7" = rmse_tst_mdl7_sig1,"model8"=rmse_tst_mdl8_sig1,"model9"=rmse_tst_mdl9_sig1)
+
+tst_results_2 = data.frame("model1" = rmse_tst_mdl1_sig2,"model2" = rmse_tst_mdl2_sig2,"model3" = rmse_tst_mdl3_sig2,"model4" = rmse_tst_mdl4_sig2,"model5" = rmse_tst_mdl5_sig2,"model6" = rmse_tst_mdl7_sig2,"model7" = rmse_tst_mdl7_sig2,"model8"=rmse_tst_mdl8_sig2,"model9"=rmse_tst_mdl9_sig2)
+
+tst_results_4 = data.frame("model1" = rmse_tst_mdl1_sig4,"model2" = rmse_tst_mdl2_sig4,"model3" = rmse_tst_mdl3_sig4,"model4" = rmse_tst_mdl4_sig4,"model5" = rmse_tst_mdl5_sig4,"model6" = rmse_tst_mdl7_sig4,"model7" = rmse_tst_mdl7_sig4,"model8"=rmse_tst_mdl8_sig4,"model9"=rmse_tst_mdl9_sig4)
+
+```
+
+**Results**
+
+**Model Size vs Mean RMSE for Train vs. Test results**
+
+```{r}
+
+par(mfrow = c(1,3))
+plot(mean_results$model_size,mean_results$TRN_RMSE1,col="blue",cex=1.5,xlab="Model Size", ylab="Mean RMSE", main="For Sigma = 1")
+lines(mean_results$model_size, mean_results$TST_RMSE1, col="orange", lwd=1)
+plot(mean_results$model_size,mean_results$TRN_RMSE2,col="blue",cex=1.5,xlab="Model Size", ylab="Mean RMSE", main="For Sigma 2")
+lines(mean_results$model_size, mean_results$TST_RMSE2, col="orange", lwd=1)
+plot(mean_results$model_size,mean_results$TRN_RMSE4,col="blue",cex=1.5,xlab="Model Size", ylab="Mean RMSE", main="For Sigma 4")
+lines(mean_results$model_size, mean_results$TST_RMSE4, col="orange", lwd=1)
+```
+
+**Frequency of minimum RMSE for the different models**
+
+```{r}
+
+barplot(table(colnames(tst_results_1)[apply(tst_results_1,1,which.min)]),
+  xlab = "Models",
+  ylab = "Frequency",
+  main = "For Sigma = 1",
+  col = "blue"
+  )
+barplot(table(colnames(tst_results_2)[apply(tst_results_2,1,which.min)]),
+  xlab = "Models",
+  ylab = "Frequency",
+  main = "For Sigma = 2",
+  col = "blue"
+  )
+barplot(table(colnames(tst_results_4)[apply(tst_results_4,1,which.min)]),
+  xlab = "Models",
+  ylab = "Frequency",
+  main = "For Sigma = 4",
+  col = "blue"
+  )
+```
+
+**Discussions**
+
+Based on the plots in the results section, when looking at the mean RMSE for train vs. Test and also the frequency of the lowest RMSE, model 6 seems to get picked consistently as the best model. So the method seem to be pick the right model consistently.
+
+When sigma is low, the frequency of lowest RMSE increases which suggests that as noise increases the possibility of a model getting picked up as best model increases.
+
+## Simulation Study 3: Power
+
+**Introduction**
+
+we will investigate the power of the significance of regression test for simple linear regression.
+
+$H_0 : \beta_1 = 0$ vs $H_1: \beta_1 \neq 0$
+
+Power is the probability of rejecting the null hypothesis when the null is not true, that is, the alternative is true and β1 is non-zero.Many things affect the power of a test. In this case, some of those are:
+
+1. Sample Size, n
+2. Signal Strength, β1
+3. Noise Level, σ
+4. Significance Level, α
+
+In this study, we’ll investigate the first three. To do so we will simulate from the model
+
+$Y_i = \beta_0 + \beta_1x_i + e_i$
+
+We will then consider different signals, noises, and sample sizes:
+
+β1 ∈ (−2,−1.9,−1.8,…,−0.1,0,0.1,0.2,0.3,…1.9,2)
+
+σ ∈ (1,2,4)
+
+n ∈ (10,20,30)
+
+We will hold the significance level constant at α=0.05
+.
+**Methods**
+
+```{r}
+#  Initialize the variables
+alpha  = 0.05
+beta0  = 0
+beta1  = seq(-2,2,by=0.2)
+sigma = c(1,2,4)
+sample_size = c(10,20,30)
+num_sims = 1000 # 1000
+
+#Declare the data frame size
+df_size = length(sample_size) * length(beta1)
+
+#Initialize the data frame to store the results for each value of sigma
+sim_df_sigma1 = data.frame("sample_size" = rep(0,df_size),"beta1" = rep(0,df_size),"power" = rep(0,df_size))
+sim_df_sigma2 = data.frame("sample_size" = rep(0,df_size),"beta1" = rep(0,df_size),"power" = rep(0,df_size))
+sim_df_sigma4 = data.frame("sample_size" = rep(0,df_size),"beta1" = rep(0,df_size),"power" = rep(0,df_size))
+
+# Loop for each sigma values
+for(sigma_cnt in 1:length(sigma))
+{
+  sigma_val  = sigma[sigma_cnt]
+  df_row_cnt = 1
+  
+  # Loop for each sample size
+  for(size_cnt in 1:length(sample_size))
+  {
+    n = sample_size[size_cnt]
+    x = seq(0, 5, length = n)
+   
+    # Loop for each beta1 value
+   for(beta1_cnt in 1:length(beta1))
+   {
+     
+    reject_cnt = 0
+    power = 0
+    beta_1_val = beta1[beta1_cnt]
+    
+    # Loop for each simulation count
+    for(sim_cnt in 1:num_sims)
+    {
+      #Calculate the epsilon
+      eps = rnorm(n, mean = 0, sd = sigma_val)
+      #Calculate the y value
+      y = beta0 + beta_1_val * x + eps;
+      #SLR model
+      sim_fit = lm(y~x)
+      #Extract the pvalue of Beta1
+      p_value = summary(sim_fit)$coefficients[2,"Pr(>|t|)"]
+      
+      #Compare with alpha and increment the rejection count
+      if(p_value < alpha){
+        reject_cnt = reject_cnt + 1
+      }
+      
+    } # End of for loop for simulation
+    
+      #Calculate the power
+      power = reject_cnt/num_sims
+      
+      #Store the value of power in the data frame for each sigma/sample_size/beta1
+      if(sigma_cnt == 1){
+        sim_df_sigma1[df_row_cnt,"sample_size"] = n
+        sim_df_sigma1[df_row_cnt,"beta1"] = beta_1_val
+        sim_df_sigma1[df_row_cnt,"power"] = power 
+      }
+      
+       if(sigma_cnt == 2){
+        sim_df_sigma2[df_row_cnt,"sample_size"] = n
+        sim_df_sigma2[df_row_cnt,"beta1"] = beta_1_val
+        sim_df_sigma2[df_row_cnt,"power"] = power 
+      }     
+      
+      if(sigma_cnt == 3){
+        sim_df_sigma4[df_row_cnt,"sample_size"] = n
+        sim_df_sigma4[df_row_cnt,"beta1"] = beta_1_val
+        sim_df_sigma4[df_row_cnt,"power"] = power 
+      }      
+      
+      df_row_cnt = df_row_cnt + 1
+      
+   }  # End of for loop for beta1
+  }   # End of for loop for sample size
+}     # End of for loop for sigma count
+
+```
+
+**Results**
+
+**For sigma = 1**
+```{r}
+par(mfrow = c(1,3))
+plot(subset(sim_df_sigma1,sample_size == 10)$beta1,subset(sim_df_sigma1,sample_size == 10)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 10")
+lines(subset(sim_df_sigma1,sample_size == 10)$beta1,subset(sim_df_sigma1,sample_size == 10)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma1,sample_size == 20)$beta1,subset(sim_df_sigma1,sample_size == 20)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 20")
+lines(subset(sim_df_sigma1,sample_size == 20)$beta1,subset(sim_df_sigma1,sample_size == 20)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma1,sample_size == 30)$beta1,subset(sim_df_sigma1,sample_size == 30)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 30")
+lines(subset(sim_df_sigma1,sample_size == 30)$beta1,subset(sim_df_sigma1,sample_size == 30)$power,col="orange",lwd=1)
+```
+
+**For sigma = 2**
+```{r}
+par(mfrow = c(1,3))
+plot(subset(sim_df_sigma2,sample_size == 10)$beta1,subset(sim_df_sigma2,sample_size == 10)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 10")
+lines(subset(sim_df_sigma2,sample_size == 10)$beta1,subset(sim_df_sigma2,sample_size == 10)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma2,sample_size == 20)$beta1,subset(sim_df_sigma2,sample_size == 20)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 20")
+lines(subset(sim_df_sigma2,sample_size == 20)$beta1,subset(sim_df_sigma2,sample_size == 20)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma2,sample_size == 30)$beta1,subset(sim_df_sigma2,sample_size == 30)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 30")
+lines(subset(sim_df_sigma2,sample_size == 30)$beta1,subset(sim_df_sigma2,sample_size == 30)$power,col="orange",lwd=1)
+```
+
+**For sigma = 4**
+```{r}
+par(mfrow = c(1,3))
+plot(subset(sim_df_sigma4,sample_size == 10)$beta1,subset(sim_df_sigma4,sample_size == 10)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 10")
+lines(subset(sim_df_sigma4,sample_size == 10)$beta1,subset(sim_df_sigma4,sample_size == 10)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma4,sample_size == 20)$beta1,subset(sim_df_sigma4,sample_size == 20)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 20")
+lines(subset(sim_df_sigma4,sample_size == 20)$beta1,subset(sim_df_sigma4,sample_size == 20)$power,col="orange",lwd=1)
+
+plot(subset(sim_df_sigma4,sample_size == 30)$beta1,subset(sim_df_sigma4,sample_size == 30)$power,col="blue",cex=1.5,xlab="Beta1", ylab="Power", main="n = 30")
+lines(subset(sim_df_sigma4,sample_size == 30)$beta1,subset(sim_df_sigma4,sample_size == 30)$power,col="orange",lwd=1)
+```
+
+**Discussions**
+
+Based on the plots in the results section, for sigma = 1 and 2 their seem to be not much difference in power but when sigma = 4 the power reduced drastically which suggests that as sigma increases power decreases.
+
+Also the power curve is least when beta1 is close to 0 rather than the beta1 values farther away from zero which suggests that as beta1 is close to zero power decreases.
+
+Within each sigma, the number of observations doesn't seem to have much of variation or impact on the power curve. There is some negligible difference between each values of n. 
+
+So overall we can conclude sigma and beta1 seem to have a greater impact on power rather than number of observations.
+
+I tried to simulate with 2000 observations and the result still seem to be the same.So doing the simulation 1000 times seem to be sufficient for this case study.
