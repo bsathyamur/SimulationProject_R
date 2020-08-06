@@ -64,6 +64,8 @@ y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9
 
 For each model and for each of the level of noise, we simulate 1000 times and calculate the Train and Test RMSE to identify the best model.
 
+![RMSE_comparison](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/RMSE-comp1.png)
+
 ## Simulation Study 3: Power
 
 we will investigate the power of the significance of regression test for simple linear regression.
