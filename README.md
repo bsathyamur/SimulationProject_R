@@ -1,7 +1,6 @@
 # STAT 420, Summer 2019, BALAJI SATHYAMURTHY (BALAJIS2)
 
 ## Simulation Study 1, Significance of Regression
-# Introduction
 
 In this simulation study we will investigate the significance of regression test. We will simulate from two different models using the data found in study_1.csv file:
 
