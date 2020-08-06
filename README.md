@@ -25,6 +25,10 @@ C. R2
 
 For each model-σ combination we will use 2500 simulations. Then for each simulation, we will fit a regression model.
 
+### Below table represents the f-statistic, p-value and R2 values for various sigma of the 2500 simulations
+
+![study_1.csv](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/sim-table.png)
+
 ## Simulation Study 2, Using RMSE for Selection
 
 Using the data found in study_2.csv, We will simulate from the below model
