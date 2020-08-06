@@ -25,13 +25,18 @@ C. R2
 
 For each model-σ combination we will use 2500 simulations. Then for each simulation, we will fit a regression model.
 
-### Below table represents the f-statistic, p-value and R2 values for various sigma of the 2500 simulations
-
-![study_1.csv](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/sim-table.png)
-
 ![pic1](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/fstat-and-val-comp.png)
 
 ![pic2](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/rsquared-comp.png)
+
+### Discussions
+#### f-Statistic 
+The f-statistic doesn’t seem to align with the true distribution curve.
+#### p-Value 
+When the null hypothesis, H0, is true, all p-values between 0 and 1 are equally likely. In other words, the p-value has a rectangular distribution between 0 and 1
+On the other hand, if H1 is true, then the p-values have a distribution for which p-values near zero are more likely than p-values near 1. The precise distribution under the alternative hypothesis depends on the specific hypotheses being tested and the true value of the parameter, but it always favours values near 0.
+#### R-squared
+I am not able to understand what type of distribution does the r-squared follows under null and alternate hypthesis. Lower values of sigma seem to have more dense higher values of R-squared for the significant model. In case of the non significant model since its mostly noise, the r-squared doesn’t seem to vary much for each sigma.
 
 ## Simulation Study 2, Using RMSE for Selection
 
