@@ -29,6 +29,10 @@ For each model-σ combination we will use 2500 simulations. Then for each simula
 
 ![study_1.csv](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/sim-table.png)
 
+![pic1](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/fstat-and-val-comp.png)
+
+![pic2](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/rsquared-comp.png)
+
 ## Simulation Study 2, Using RMSE for Selection
 
 Using the data found in study_2.csv, We will simulate from the below model
