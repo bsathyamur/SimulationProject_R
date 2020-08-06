@@ -1,4 +1,4 @@
-## SIMULATION PROJECT - R PROGRAMMING
+## SIMULATION PROJECT - r programming
 
 ## Simulation Study 1, Significance of Regression
 
@@ -91,3 +91,5 @@ We will then consider different signals, noises, and sample sizes:
 n ∈ (10,20,30)
 
 We will hold the significance level constant at α=0.05 . 
+
+![power-pic](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/power-comp.png)
