@@ -1,4 +1,4 @@
-# STAT 420, Summer 2019, BALAJI SATHYAMURTHY (BALAJIS2)
+## SIMULATION PROJECT - R PROGRAMMING
 
 ## Simulation Study 1, Significance of Regression
 
