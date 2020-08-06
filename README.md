@@ -82,21 +82,20 @@ In this study, we’ll investigate the first three. To do so we will simulate fr
 Yi=β0+β1xi+ei
 
 We will then consider different signals, noises, and sample sizes:
-
 β1 ∈ (−2,−1.9,−1.8,…,−0.1,0,0.1,0.2,0.3,…1.9,2)
-
 σ ∈ (1,2,4)
-
 n ∈ (10,20,30)
 
 We will hold the significance level constant at α=0.05 . 
 
 ![power-pic](https://github.com/bsathyamur/simulation_project_r_programming/blob/master/power-comp.png)
 
-### Discussions
+### Discussion
 
 Based on the plots in the results section, for sigma = 1 and 2 their seem to be not much difference in power but when sigma = 4 the power reduced drastically which suggests that as sigma increases power decreases.
+
 Also the power curve is least when beta1 is close to 0 rather than the beta1 values farther away from zero which suggests that as beta1 is close to zero power decreases.
+
 Within each sigma, the number of observations doesn’t seem to have much of variation or impact on the power curve. There is some negligible difference between each values of n. So overall we can conclude sigma and beta1 seem to have a greater impact on power rather than number of observations.
 
 I tried to simulate with 2000 observations and the result still seem to be the same.So doing the simulation 1000 times seem to be sufficient for this case study.
